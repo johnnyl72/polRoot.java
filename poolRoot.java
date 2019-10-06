@@ -1,4 +1,3 @@
-package cs3010;
 import java.util.*;
 import java.io.*;
 
@@ -8,19 +7,90 @@ public class polRoot {
 	static final float machineEPS = 2E-23F;
 	static int degree;
 	static float[] solutionArray = new float[3];
-	
+	static float a, b;
+	static String mode;
 	public static void main(String[] args) {
 
-		/*
-		float poly[] = {1, 0, 3, -1};
-		System.out.println(Bisection(poly, 0, 1, defaultIter, machineEPS));
-		System.out.println(Newton(poly, DeriveFunction(poly), 3,  defaultIter, machineEPS, 0));
-		System.out.println(Secant(poly, 0, 3, defaultIter, machineEPS)); 
-		System.out.println(Hybrid(poly, 0, 1, defaultIter, machineEPS, 0));
-		*/
+		String[] delim;
+		String fileName;
+		String solutionName;
 		
-		readAndWrite("fun1.pol","fun1.sol");
+		if(!(args[0].equalsIgnoreCase("-newt") || args[0].equalsIgnoreCase("-sec") || args[0].equalsIgnoreCase("-hybrid"))) {
+			System.out.println("Bisection Method");
+			mode = "bisection";
 		
+			if(args[0].equalsIgnoreCase("-maxIter")) {
+				defaultIter = Integer.parseInt(args[1]);
+				a = Float.parseFloat(args[2]);
+				b = Float.parseFloat(args[3]);
+				fileName = args[4];
+			}
+			else {
+				a = Float.parseFloat(args[0]);
+				b = Float.parseFloat(args[1]);
+				fileName = args[2];
+			}
+			
+			delim = fileName.split("\\.");
+			solutionName = delim[0] + "." + "sol";
+			readAndWrite(fileName,solutionName);
+			
+		}
+		else if(args[0].equalsIgnoreCase("-newt")){
+			System.out.println("Newton Method");
+			mode = "newton";
+			
+			if(args[1].equalsIgnoreCase("-maxIter")) {
+				defaultIter = Integer.parseInt(args[2]);
+				a = Float.parseFloat(args[3]);
+				fileName = args[4];
+			}
+			else {
+				a = Float.parseFloat(args[1]);
+				fileName = args[2];
+			}
+			delim = fileName.split("\\.");
+			solutionName = delim[0] + "." + "sol";
+			readAndWrite(fileName,solutionName);
+		}
+		else if(args[0].equalsIgnoreCase("-sec")){
+			System.out.println("Secant Method");
+			mode = "secant";
+			if(args[1].equalsIgnoreCase("-maxIter")) {
+				defaultIter = Integer.parseInt(args[2]);
+				a = Float.parseFloat(args[3]);
+				b = Float.parseFloat(args[4]);
+				fileName = args[5];
+			}
+			else {
+			a = Float.parseFloat(args[1]);
+			b = Float.parseFloat(args[2]);
+			fileName = args[3];
+			}
+			delim = fileName.split("\\.");
+			solutionName = delim[0] + "." + "sol";
+			readAndWrite(fileName,solutionName);
+		}
+		else if(args[0].equalsIgnoreCase("-hybrid")){
+			System.out.println("Hybrid Method");
+			mode = "hybrid";
+			if(args[1].equalsIgnoreCase("-maxIter")) {
+				defaultIter = Integer.parseInt(args[2]);
+				a = Float.parseFloat(args[3]);
+				b = Float.parseFloat(args[4]);
+				fileName = args[5];
+			}
+			else {
+			
+			a = Float.parseFloat(args[1]);
+			b = Float.parseFloat(args[2]);
+			fileName = args[3];
+			
+			}
+			delim = fileName.split("\\.");
+			solutionName = delim[0] + "." + "sol";
+			readAndWrite(fileName,solutionName);
+		}
 		System.exit(0);
 	}
 	public static void readAndWrite(String fileName,String solutionName) {
@@ -38,15 +108,30 @@ public class polRoot {
 				poly[i] = Float.parseFloat(coeff[i]);
 			}
 		
+
+		/*
+		 * Execute specific methods
+		 */
 			
-			//Call writeEntries method
-			
-			System.out.println(Hybrid(poly, 0, 2000, defaultIter, machineEPS, 0));
-			
+			switch(mode) {
+			case "bisection":
+				Bisection(poly, a, b, defaultIter, machineEPS);
+				break;
+			case "newton":
+				Newton(poly, DeriveFunction(poly), a, defaultIter, machineEPS, 0);
+				break;
+			case "secant":
+				Secant(poly, a, b, defaultIter, machineEPS);
+				break;
+			case "hybrid":
+				Hybrid(poly, a, b, defaultIter, machineEPS, 0);
+				break;
+				
+			}
+
 			String answer = Arrays.toString(solutionArray);
 			answer = answer.replaceAll("\\[", "").replaceAll("\\]","").replace("\\,", " ");
 			writeEntries(answer,solutionName);
-			
 			bufferedReader.close();
 	
 		}//end try
@@ -69,7 +154,6 @@ public class polRoot {
 		catch(IOException e) {	
 		}
 	}
-	
 	//Solves polynomials via Horner's algorithm
 	static float Function(float[] coeff, float x) {
 		float result = coeff[0];
@@ -218,7 +302,7 @@ public class polRoot {
 			fa = Function(f, a);
 		} //end for
 		
-		System.out.println("Maximum number of itertions reached!");
+		System.out.println("Maximum number of itertions reached!!");
 		solutionArray[0] = a;
 		solutionArray[1] = iterCounter;
 		solutionArray[2] = -1;
@@ -247,7 +331,7 @@ public class polRoot {
 			
 			if( Math.abs(error) < eps || fc == 0) {
 			
-				System.out.println("Algorithm has converged after " + iterCounter + " iterations!!!");
+				System.out.println("Algorithm has converged after " + iterCounter + " iterations!!");
 				solutionArray[0] = c;
 				solutionArray[1] = iterCounter;
 				solutionArray[2] = 1;
@@ -256,6 +340,7 @@ public class polRoot {
 			else if(Math.abs(error) < 5) {
 				break;
 			} //end if
+			
 			if( fa * fc < 0) {
 				b = c;
 				fb = fc;
@@ -264,10 +349,18 @@ public class polRoot {
 				a = c;
 				fa = fc;
 			} //end if-else
+			
 		}
+		
+		
+		
 		//Newton's Part
 		for(int j = 0; j < maxIter; j++) {
+			//Stop once reached max iteration
+			if(iterCounter >= maxIter)
+				break;
 			iterCounter++;
+			
 			float fd = Function(DeriveFunction(f), c);
 			if ( Math.abs(fd) < delta) {
 				//Continue with bisection method instead by brekaing out Newton's for loop
@@ -280,7 +373,7 @@ public class polRoot {
 			fc = Function(f, c);
 			
 			if(Math.abs(d) < eps) {
-				System.out.println("Algorithm has converged after " + iterCounter + " iterations!!!!");
+				System.out.println("Algorithm has converged after " + iterCounter + " iterations!!!");
 				solutionArray[0] = c;
 				solutionArray[1] = iterCounter;
 				solutionArray[2] = 1;
