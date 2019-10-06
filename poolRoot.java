@@ -6,17 +6,68 @@ public class polRoot {
 
 	static int defaultIter = 10000;
 	static final float machineEPS = 2E-23F;
+	static int degree;
+	static float[] solutionArray = new float[3];
 	
 	public static void main(String[] args) {
 
-		float poly[] = {10, 2, -2};
-		System.out.println(Bisection(poly, 0, 5, defaultIter, machineEPS));
+		/*
+		float poly[] = {1, 0, 3, -1};
+		System.out.println(Bisection(poly, 0, 1, defaultIter, machineEPS));
 		System.out.println(Newton(poly, DeriveFunction(poly), 3,  defaultIter, machineEPS, 0));
-		//System.out.println(Secant(poly, 2,1, defaultIter, machineEPS)); 
-		System.out.println(Hybrid(poly, 0, 5, defaultIter, machineEPS, 0));
+		System.out.println(Secant(poly, 0, 3, defaultIter, machineEPS)); 
+		System.out.println(Hybrid(poly, 0, 1, defaultIter, machineEPS, 0));
+		*/
+		
+		readAndWrite("fun1.pol","fun1.sol");
 		
 		System.exit(0);
-
+	}
+	public static void readAndWrite(String fileName,String solutionName) {
+		try {
+			BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName));
+			
+			//Read first line to determine polynomial degree
+			degree = Integer.parseInt(bufferedReader.readLine());
+			float[] poly = new float[degree+1];
+		;
+			//Read in coefficients 
+			String line = bufferedReader.readLine();
+			String[] coeff = line.split("\\s+");
+			for(int i = 0; i <= degree; i++) {
+				poly[i] = Float.parseFloat(coeff[i]);
+			}
+		
+			
+			//Call writeEntries method
+			
+			System.out.println(Hybrid(poly, 0, 2000, defaultIter, machineEPS, 0));
+			
+			String answer = Arrays.toString(solutionArray);
+			answer = answer.replaceAll("\\[", "").replaceAll("\\]","").replace("\\,", " ");
+			writeEntries(answer,solutionName);
+			
+			bufferedReader.close();
+	
+		}//end try
+		
+		catch(FileNotFoundException e) {
+		} 
+		catch(IOException e) {
+		}//end catch
+		
+		
+	}//end readEntries
+	public static void writeEntries(String answer, String solutionFile) {
+		//Writer 
+		try {
+			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(solutionFile));
+			
+			bufferedWriter.write(answer);
+            bufferedWriter.close();	
+		}
+		catch(IOException e) {	
+		}
 	}
 	
 	//Solves polynomials via Horner's algorithm
@@ -45,7 +96,7 @@ public class polRoot {
 		return derivative;
 	}
 	static float Bisection(float[] f, float a, float b, int maxIter, float eps) {
-
+		
 		float fa = Function(f, a);
 		float fb = Function(f, b);
 		int iterCounter = 0;
@@ -65,6 +116,10 @@ public class polRoot {
 			
 			if( Math.abs(error) < eps || fc == 0) {
 				System.out.println("Algorithm has converged after " + iterCounter + " iterations!");
+				
+				solutionArray[0] = c;
+				solutionArray[1] = iterCounter;
+				solutionArray[2] = 1;
 				return c;
 			} //end if
 			
@@ -81,9 +136,13 @@ public class polRoot {
 		} //end for
 		
 		System.out.println("Max iterations reached without convergence...");
+		solutionArray[0] = c;
+		solutionArray[1] = iterCounter;
+		solutionArray[2] = -1;
 		return c;
 	} //end Bisection method
 	static float Newton(float[] f, float[] df, float x, int maxIter, float eps, float delta) {
+
 		float fx = Function(f, x);
 		int iterCounter = 0;
 		for(int i = 0; i < maxIter; i++) {
@@ -100,14 +159,21 @@ public class polRoot {
 			
 			if(Math.abs(d) < eps) {
 				System.out.println("Algorithm has converged after " + iterCounter + " iterations!");
+				solutionArray[0] = x;
+				solutionArray[1] = iterCounter;
+				solutionArray[2] = 1;
 				return x;
 			} //end if
 		} //end for
 		
 		System.out.println("Max iterations reached without convergence...");
+		solutionArray[0] = x;
+		solutionArray[1] = iterCounter;
+		solutionArray[2] = -1;
 		return x;
 	} //end Newton Method
 	static float Secant(float[] f, float a, float b, int maxIter, float eps) {
+
 		float fa = Function(f, a);
 		float fb = Function(f, b);
 		
@@ -119,7 +185,7 @@ public class polRoot {
 			// sap (fa, fb)
 			float temp1 = fa;
 			fa = fb;
-			fb = temp1;
+			fb = temp1; 
 		} //end if
 		int iterCounter = 0;
 		for(int i = 0; i < maxIter; i++) {
@@ -142,6 +208,9 @@ public class polRoot {
 			
 			if(Math.abs(d) < eps) {
 				System.out.println("Algorithm has converged after " + iterCounter + " iterations!");
+				solutionArray[0] = a;
+				solutionArray[1] = iterCounter;
+				solutionArray[2] = 1;
 				return a;
 			} //end if
 			
@@ -149,7 +218,10 @@ public class polRoot {
 			fa = Function(f, a);
 		} //end for
 		
-		System.out.print("Maximum number of itertions reached!");
+		System.out.println("Maximum number of itertions reached!");
+		solutionArray[0] = a;
+		solutionArray[1] = iterCounter;
+		solutionArray[2] = -1;
 		return a;
 	} //end Secant method
 	static float Hybrid(float[] f, float a, float b, int maxIter, float eps, float delta) {
@@ -160,34 +232,38 @@ public class polRoot {
 		int iterCounter = 0 ;
 		
 		for(int i = 0; i < maxIter; i++) {
-		iterCounter++;
-		if( fa * fb >= 0) {
-			System.out.println("Inadequate values for a and b.");
-			return -1;
-		}
-		
-		float error = b - a;
-		c = 0;
-		error = error / 2;
-		c = a + error;
-		fc = Function(f, c);
-		
-		if( Math.abs(error) < eps || fc == 0) {
-		
-			System.out.println("Algorithm has converged after " + iterCounter + " iterations!!!");
-			return c;
-		} //end if
-		else if(Math.abs(error) < 1) {
-			break;
-		} //end if
-		if( fa * fc < 0) {
-			b = c;
-			fb = fc;
-		}
-		else {
-			a = c;
-			fa = fc;
-		} //end if-else
+			iterCounter++;
+			
+			if( fa * fb >= 0) {
+				System.out.println("Inadequate values for a and b.");
+				return -1;
+			}
+			
+			float error = b - a;
+			c = 0;
+			error = error / 2;
+			c = a + error;
+			fc = Function(f, c);
+			
+			if( Math.abs(error) < eps || fc == 0) {
+			
+				System.out.println("Algorithm has converged after " + iterCounter + " iterations!!!");
+				solutionArray[0] = c;
+				solutionArray[1] = iterCounter;
+				solutionArray[2] = 1;
+				return c;
+			} //end if
+			else if(Math.abs(error) < 5) {
+				break;
+			} //end if
+			if( fa * fc < 0) {
+				b = c;
+				fb = fc;
+			}
+			else {
+				a = c;
+				fa = fc;
+			} //end if-else
 		}
 		//Newton's Part
 		for(int j = 0; j < maxIter; j++) {
@@ -205,11 +281,17 @@ public class polRoot {
 			
 			if(Math.abs(d) < eps) {
 				System.out.println("Algorithm has converged after " + iterCounter + " iterations!!!!");
+				solutionArray[0] = c;
+				solutionArray[1] = iterCounter;
+				solutionArray[2] = 1;
 				return c;
 			} //end if
 		} //end for
 		
 		System.out.println("Max iterations reached without convergence...");
+		solutionArray[0] = c;
+		solutionArray[1] = iterCounter;
+		solutionArray[2] = -1;
 		return c;
 	} //end Hybrid method
 
