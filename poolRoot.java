@@ -4,17 +4,16 @@ import java.io.*;
 
 public class polRoot {
 
-	public static int iterCounter;
-	public static int defaultIter = 10000;
-	public static final float machineEPS = 2E-23F;
+	static int defaultIter = 10000;
+	static final float machineEPS = 2E-23F;
 	
 	public static void main(String[] args) {
 
-		float poly[] = {3, 5, 0, -7};
-		System.out.println(Bisection(poly, 0, 2, defaultIter, machineEPS));
-		System.out.println(Newton(poly, DeriveFunction(poly), 2,  defaultIter, machineEPS, 0));
-		System.out.println(Secant(poly, 2,4, defaultIter, machineEPS)); 
-		System.out.println(Hybrid(poly, 0, 2, defaultIter, machineEPS, 0));
+		float poly[] = {10, 2, -2};
+		System.out.println(Bisection(poly, 0, 5, defaultIter, machineEPS));
+		System.out.println(Newton(poly, DeriveFunction(poly), 3,  defaultIter, machineEPS, 0));
+		//System.out.println(Secant(poly, 2,1, defaultIter, machineEPS)); 
+		System.out.println(Hybrid(poly, 0, 5, defaultIter, machineEPS, 0));
 		
 		System.exit(0);
 
@@ -49,7 +48,7 @@ public class polRoot {
 
 		float fa = Function(f, a);
 		float fb = Function(f, b);
-		
+		int iterCounter = 0;
 		if( fa * fb >= 0) {
 			System.out.println("Inadequate values for a and b.");
 			return -1;
@@ -58,13 +57,14 @@ public class polRoot {
 		float error = b - a;
 		float c = 0;
 		for(int i = 0; i < maxIter; i++) {
+			iterCounter++;
 			error = error / 2;
 			c = a + error;
 			float fc = Function(f, c);
+		
 			
-			iterCounter++;
 			if( Math.abs(error) < eps || fc == 0) {
-				System.out.println("Algorithm has converged after " + i + " iterations!");
+				System.out.println("Algorithm has converged after " + iterCounter + " iterations!");
 				return c;
 			} //end if
 			
@@ -76,7 +76,7 @@ public class polRoot {
 			else {
 				a = c;
 				fa = fc;
-			} //end if
+			} //end if-else
 		
 		} //end for
 		
@@ -85,7 +85,9 @@ public class polRoot {
 	} //end Bisection method
 	static float Newton(float[] f, float[] df, float x, int maxIter, float eps, float delta) {
 		float fx = Function(f, x);
+		int iterCounter = 0;
 		for(int i = 0; i < maxIter; i++) {
+			iterCounter++;
 			float fd = Function(df, x);
 			if ( Math.abs(fd) < delta) {
 				System.out.println("Small slope!");
@@ -97,7 +99,7 @@ public class polRoot {
 			fx = Function(f, x);
 			
 			if(Math.abs(d) < eps) {
-				System.out.println("Algorithm has converged after " + i + " iterations!");
+				System.out.println("Algorithm has converged after " + iterCounter + " iterations!");
 				return x;
 			} //end if
 		} //end for
@@ -119,8 +121,9 @@ public class polRoot {
 			fa = fb;
 			fb = temp1;
 		} //end if
-		
+		int iterCounter = 0;
 		for(int i = 0; i < maxIter; i++) {
+			iterCounter++;
 			if(Math.abs(fa) > Math.abs(fb)) {
 				// swap(a, b)
 				float temp = a;
@@ -138,7 +141,7 @@ public class polRoot {
 			d = d * fa;
 			
 			if(Math.abs(d) < eps) {
-				System.out.println("Algorithm has converged after " + i + " iterations!");
+				System.out.println("Algorithm has converged after " + iterCounter + " iterations!");
 				return a;
 			} //end if
 			
@@ -152,49 +155,56 @@ public class polRoot {
 	static float Hybrid(float[] f, float a, float b, int maxIter, float eps, float delta) {
 		float fa = Function(f, a);
 		float fb = Function(f, b);
+		float c = 0;
+		float fc = 0;
+		int iterCounter = 0 ;
 		
+		for(int i = 0; i < maxIter; i++) {
+		iterCounter++;
 		if( fa * fb >= 0) {
 			System.out.println("Inadequate values for a and b.");
 			return -1;
 		}
 		
 		float error = b - a;
-		float c = 0;
-			error = error / 2;
-			c = a + error;
-			float fc = Function(f, c);
-			
+		c = 0;
+		error = error / 2;
+		c = a + error;
+		fc = Function(f, c);
+		
+		if( Math.abs(error) < eps || fc == 0) {
+		
+			System.out.println("Algorithm has converged after " + iterCounter + " iterations!!!");
+			return c;
+		} //end if
+		else if(Math.abs(error) < 1) {
+			break;
+		} //end if
+		if( fa * fc < 0) {
+			b = c;
+			fb = fc;
+		}
+		else {
+			a = c;
+			fa = fc;
+		} //end if-else
+		}
+		//Newton's Part
+		for(int j = 0; j < maxIter; j++) {
 			iterCounter++;
-			if( Math.abs(error) < eps || fc == 0) {
-				System.out.println("Algorithm has converged after " + 1 + " iterations!");
-				return c;
-			} //end if
-			
-			if( fa * fc < 0) {
-				b = c;
-				fb = fc;
-			}
-			else {
-				a = c;
-				fa = fc;
-			} //end if
-		
-		 //end for
-		
-		float fx = Function(f, c);
-		for(int i = 0; i < maxIter; i++) {
 			float fd = Function(DeriveFunction(f), c);
 			if ( Math.abs(fd) < delta) {
-				System.out.println("Small slope!");
-				return c;
+				//Continue with bisection method instead by brekaing out Newton's for loop
+				break; 
 			} //end if
 			
-			float d = (float)(fx / fd);
+			float d = (float)(fc / fd);
+			//New c
 			c = c - d;
-			fx = Function(f, c);
+			fc = Function(f, c);
 			
 			if(Math.abs(d) < eps) {
-				System.out.println("Algorithm has converged after " + i + " iterations!");
+				System.out.println("Algorithm has converged after " + iterCounter + " iterations!!!!");
 				return c;
 			} //end if
 		} //end for
