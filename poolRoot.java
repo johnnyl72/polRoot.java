@@ -10,10 +10,12 @@ public class polRoot {
 	
 	public static void main(String[] args) {
 
-		float poly[] = {1, 2, 10, -20};
+		float poly[] = {3, 5, 0, -7};
 		System.out.println(Bisection(poly, 0, 2, defaultIter, machineEPS));
 		System.out.println(Newton(poly, DeriveFunction(poly), 2,  defaultIter, machineEPS, 0));
 		System.out.println(Secant(poly, 2,4, defaultIter, machineEPS)); 
+		System.out.println(Hybrid(poly, 0, 2, defaultIter, machineEPS, 0));
+		
 		System.exit(0);
 
 	}
@@ -65,6 +67,7 @@ public class polRoot {
 				System.out.println("Algorithm has converged after " + i + " iterations!");
 				return c;
 			} //end if
+			
 			
 			if( fa * fc < 0) {
 				b = c;
@@ -146,8 +149,58 @@ public class polRoot {
 		System.out.print("Maximum number of itertions reached!");
 		return a;
 	} //end Secant method
-	static float Hybrid(float[] f, float[] df, float a, float b, int maxIter, float eps, float delta) {
+	static float Hybrid(float[] f, float a, float b, int maxIter, float eps, float delta) {
+		float fa = Function(f, a);
+		float fb = Function(f, b);
 		
-	}
+		if( fa * fb >= 0) {
+			System.out.println("Inadequate values for a and b.");
+			return -1;
+		}
+		
+		float error = b - a;
+		float c = 0;
+			error = error / 2;
+			c = a + error;
+			float fc = Function(f, c);
+			
+			iterCounter++;
+			if( Math.abs(error) < eps || fc == 0) {
+				System.out.println("Algorithm has converged after " + 1 + " iterations!");
+				return c;
+			} //end if
+			
+			if( fa * fc < 0) {
+				b = c;
+				fb = fc;
+			}
+			else {
+				a = c;
+				fa = fc;
+			} //end if
+		
+		 //end for
+		
+		float fx = Function(f, c);
+		for(int i = 0; i < maxIter; i++) {
+			float fd = Function(DeriveFunction(f), c);
+			if ( Math.abs(fd) < delta) {
+				System.out.println("Small slope!");
+				return c;
+			} //end if
+			
+			float d = (float)(fx / fd);
+			c = c - d;
+			fx = Function(f, c);
+			
+			if(Math.abs(d) < eps) {
+				System.out.println("Algorithm has converged after " + i + " iterations!");
+				return c;
+			} //end if
+		} //end for
+		
+		System.out.println("Max iterations reached without convergence...");
+		return c;
+	} //end Hybrid method
 
 }
