@@ -91,7 +91,7 @@ public class polRoot {
 				break;
 			}
 			String answer = Arrays.toString(solutionArray);
-			answer = answer.replaceAll("\\[", "").replaceAll("\\]","").replace("\\,", " ");
+			answer = answer.replaceAll("\\[", "").replaceAll(",","").replaceAll("\\]","");
 			writeEntries(answer,solutionName);
 			bufferedReader.close();
 		}//end try
