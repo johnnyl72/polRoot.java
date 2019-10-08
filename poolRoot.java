@@ -7,7 +7,7 @@ public class polRoot {
 	static float[] solutionArray = new float[3];
 	static float a, b;
 	static String mode;
-	
+
 	public static void main(String[] args) {
 		String[] delim;
 		String fileName = "";
@@ -63,11 +63,11 @@ public class polRoot {
 	public static void readAndWrite(String fileName,String solutionName) {
 		try {
 			BufferedReader bufferedReader = new BufferedReader(new FileReader(System.getProperty("user.dir")+"/"+fileName));
-			
+
 			//Read first line to determine polynomial degree
 			int degree = Integer.parseInt(bufferedReader.readLine());
 			float[] poly = new float[degree+1];
-			//Read in coefficients 
+			//Read in coefficients
 			String line = bufferedReader.readLine();
 			String[] coeff = line.split("\\s+");
 			for(int i = 0; i <= degree; i++) {
@@ -75,7 +75,7 @@ public class polRoot {
 			}
 		/*
 		 * Execute specific methods
-		 */	
+		 */
 			switch(mode) {
 			case "bisection":
 				Bisection(poly, a, b, defaultIter, 0);
@@ -88,7 +88,7 @@ public class polRoot {
 				break;
 			case "hybrid":
 				Hybrid(poly, a, b, defaultIter, 0, 0);
-				break;		
+				break;
 			}
 			String answer = Arrays.toString(solutionArray);
 			answer = answer.replaceAll("\\[", "").replaceAll("\\]","").replace("\\,", " ");
@@ -96,18 +96,18 @@ public class polRoot {
 			bufferedReader.close();
 		}//end try
 		catch(FileNotFoundException e) {
-		} 
+		}
 		catch(IOException e) {
 		}//end catch
 	}//end readEntries
 	public static void writeEntries(String answer, String solutionFile) {
-		//Writer 
+		//Writer
 		try {
 			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(solutionFile));
 			bufferedWriter.write(answer);
-            bufferedWriter.close();	
+            bufferedWriter.close();
 		}
-		catch(IOException e) {	
+		catch(IOException e) {
 		}
 	}
 	//Solves polynomials via Horner's algorithm
@@ -204,7 +204,7 @@ public class polRoot {
 			// sap (fa, fb)
 			float temp1 = fa;
 			fa = fb;
-			fb = temp1; 
+			fb = temp1;
 		} //end if
 		int iterCounter = 0;
 		for(int i = 0; i < maxIter; i++) {
@@ -223,7 +223,6 @@ public class polRoot {
 			b = a;
 			fb = fa;
 			d = d * fa;
-			
 			if(Math.abs(d) == eps) {
 				System.out.println("Algorithm has converged after " + iterCounter + " iterations!");
 				solutionArray[0] = a;
@@ -258,7 +257,6 @@ public class polRoot {
 			c = a + error;
 			fc = Function(f, c);
 			if( Math.abs(error) == eps || fc == 0) {
-			
 				System.out.println("Algorithm has converged after " + iterCounter + " iterations!!");
 				solutionArray[0] = c;
 				solutionArray[1] = iterCounter;
@@ -286,12 +284,12 @@ public class polRoot {
 			float fd = Function(DeriveFunction(f), c);
 			if ( Math.abs(fd) < delta) {
 				//Continue with bisection method instead by breaking out Newton's for loop
-				break; 
+				break;
 			} //end if
 			float d = (float)(fc / fd);
 			//New c
 			c = c - d;
-			fc = Function(f, c);	
+			fc = Function(f, c);
 			if(Math.abs(d) == eps) {
 				System.out.println("Algorithm has converged after " + iterCounter + " iterations!!!");
 				solutionArray[0] = c;
