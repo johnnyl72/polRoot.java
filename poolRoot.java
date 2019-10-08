@@ -5,100 +5,70 @@ import java.io.*;
 public class polRoot {
 
 	static int defaultIter = 10000;
-	static int degree;
 	static float[] solutionArray = new float[3];
 	static float a, b;
 	static String mode;
+	
 	public static void main(String[] args) {
 
 		String[] delim;
-		String fileName;
-		String solutionName;
+		String fileName = "";
+		String solutionName = "";
 		System.out.println(System.getProperty("user.dir"));
-		if(!(args[0].equalsIgnoreCase("-newt") || args[0].equalsIgnoreCase("-sec") || args[0].equalsIgnoreCase("-hybrid"))) {
-			System.out.println("Bisection Method");
-			mode = "bisection";
+		//> polRoot [-newt, -sec] [-maxIt n] initP [initP2] polyFileName
 		
-			if(args[0].equalsIgnoreCase("-maxIter")) {
-				defaultIter = Integer.parseInt(args[1]);
-				a = Float.parseFloat(args[2]);
-				b = Float.parseFloat(args[3]);
-				fileName = args[4];
+		float initP1 = 0;
+        float initP2 = 0;
+        boolean hasInitP = false;
+        
+		for(int i = 0; i < args.length; i++) {
+			if(args[i].equalsIgnoreCase("-newt")) {
+				System.out.println("Newton Method");
+				mode = "newton";
+				continue;
 			}
-			else {
-				a = Float.parseFloat(args[0]);
-				b = Float.parseFloat(args[1]);
-				fileName = args[2];
+			if(args[i].equalsIgnoreCase("-sec")) {
+				System.out.println("Secant Method");
+				mode = "secant";
+				continue;
 			}
-			
-			delim = fileName.split("\\.");
-			solutionName = delim[0] + "." + "sol";
-			readAndWrite(fileName,solutionName);
-			
+			if(args[i].equalsIgnoreCase("-hybrid")) {
+				System.out.println("Hybrid Method");
+				mode = "hybrid";
+				continue;
+			}
+			if (args[i].equalsIgnoreCase("-maxIt")) {
+                defaultIter = Integer.parseInt(args[i+1]);
+                continue;
+            }
+			if (!args[i].endsWith(".pol")) {
+                if (!hasInitP) {
+                    initP1 = Float.parseFloat(args[i]);
+                    hasInitP = true;
+                } else {
+                    initP2 = Float.parseFloat(args[i]);
+                }
+
+                continue;
+            }
+			if(args[i].endsWith(".pol")) {
+				a = initP1;
+				b = initP2;
+				fileName = args[i];
+				delim = fileName.split("\\.");
+				solutionName = delim[0] + "." + "sol";
+			}
 		}
-		else if(args[0].equalsIgnoreCase("-newt")){
-			System.out.println("Newton Method");
-			mode = "newton";
-			
-			if(args[1].equalsIgnoreCase("-maxIter")) {
-				defaultIter = Integer.parseInt(args[2]);
-				a = Float.parseFloat(args[3]);
-				fileName = args[4];
-			}
-			else {
-				a = Float.parseFloat(args[1]);
-				fileName = args[2];
-			}
-			delim = fileName.split("\\.");
-			solutionName = delim[0] + "." + "sol";
-			readAndWrite(fileName,solutionName);
-		}
-		else if(args[0].equalsIgnoreCase("-sec")){
-			System.out.println("Secant Method");
-			mode = "secant";
-			if(args[1].equalsIgnoreCase("-maxIter")) {
-				defaultIter = Integer.parseInt(args[2]);
-				a = Float.parseFloat(args[3]);
-				b = Float.parseFloat(args[4]);
-				fileName = args[5];
-			}
-			else {
-			a = Float.parseFloat(args[1]);
-			b = Float.parseFloat(args[2]);
-			fileName = args[3];
-			}
-			delim = fileName.split("\\.");
-			solutionName = delim[0] + "." + "sol";
-			readAndWrite(fileName,solutionName);
-		}
-		else if(args[0].equalsIgnoreCase("-hybrid")){
-			System.out.println("Hybrid Method");
-			mode = "hybrid";
-			if(args[1].equalsIgnoreCase("-maxIter")) {
-				defaultIter = Integer.parseInt(args[2]);
-				a = Float.parseFloat(args[3]);
-				b = Float.parseFloat(args[4]);
-				fileName = args[5];
-			}
-			else {
-			
-			a = Float.parseFloat(args[1]);
-			b = Float.parseFloat(args[2]);
-			fileName = args[3];
-			
-			}
-			delim = fileName.split("\\.");
-			solutionName = delim[0] + "." + "sol";
-			readAndWrite(fileName,solutionName);
-		}
+	
+		readAndWrite(fileName,solutionName);
 		System.exit(0);
 	}
 	public static void readAndWrite(String fileName,String solutionName) {
 		try {
-			BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName));
+			BufferedReader bufferedReader = new BufferedReader(new FileReader(System.getProperty("user.dir")+"/"+fileName));
 			
 			//Read first line to determine polynomial degree
-			degree = Integer.parseInt(bufferedReader.readLine());
+			int degree = Integer.parseInt(bufferedReader.readLine());
 			float[] poly = new float[degree+1];
 		;
 			//Read in coefficients 
