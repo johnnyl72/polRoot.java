@@ -140,7 +140,7 @@ public class polRoot {
 		float error = b - a;
 		float c = 0;
 		for(int i = 0; i < maxIter; i++) {
-			iterCounter++;
+
 			error = error / 2;
 			c = a + error;
 			float fc = Function(f, c);
@@ -159,6 +159,7 @@ public class polRoot {
 				a = c;
 				fa = fc;
 			} //end if-else
+			iterCounter++;
 		} //end for
 		System.out.println("Max iterations reached without convergence...");
 		solutionArray[0] = c;
@@ -170,7 +171,7 @@ public class polRoot {
 		float fx = Function(f, x);
 		int iterCounter = 0;
 		for(int i = 0; i < maxIter; i++) {
-			iterCounter++;
+
 			float fd = Function(df, x);
 			if ( Math.abs(fd) < delta) {
 				System.out.println("Small slope!");
@@ -186,6 +187,7 @@ public class polRoot {
 				solutionArray[2] = 1;
 				return x;
 			} //end if
+			iterCounter++;
 		} //end for
 		System.out.println("Max iterations reached without convergence...");
 		solutionArray[0] = x;
@@ -208,7 +210,7 @@ public class polRoot {
 		} //end if
 		int iterCounter = 0;
 		for(int i = 0; i < maxIter; i++) {
-			iterCounter++;
+
 			if(Math.abs(fa) > Math.abs(fb)) {
 				// swap(a, b)
 				float temp = a;
@@ -232,6 +234,7 @@ public class polRoot {
 			} //end if
 			a = a - d;
 			fa = Function(f, a);
+			iterCounter++;
 		} //end for
 		System.out.println("Maximum number of itertions reached!!");
 		solutionArray[0] = a;
@@ -246,7 +249,7 @@ public class polRoot {
 		float fc = 0;
 		int iterCounter = 0 ;
 		for(int i = 0; i < maxIter; i++) {
-			iterCounter++;
+
 			if( fa * fb >= 0) {
 				System.out.println("Inadequate values for a and b.");
 				return -1;
@@ -274,13 +277,14 @@ public class polRoot {
 				a = c;
 				fa = fc;
 			} //end if-else
-		}
+			iterCounter++;
+		} //end for
 		//Newton's Part
 		for(int j = 0; j < maxIter; j++) {
 			//Stop once reached max iteration
 			if(iterCounter >= maxIter)
 				break;
-			iterCounter++;
+
 			float fd = Function(DeriveFunction(f), c);
 			if ( Math.abs(fd) < delta) {
 				//Continue with bisection method instead by breaking out Newton's for loop
@@ -297,6 +301,7 @@ public class polRoot {
 				solutionArray[2] = 1;
 				return c;
 			} //end if
+			iterCounter++;
 		} //end for
 		System.out.println("Max iterations reached without convergence...");
 		solutionArray[0] = c;
