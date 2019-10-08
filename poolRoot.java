@@ -1,10 +1,10 @@
+package cs3010;
 import java.util.*;
 import java.io.*;
 
 public class polRoot {
 
 	static int defaultIter = 10000;
-	static final float machineEPS = 2E-23F;
 	static int degree;
 	static float[] solutionArray = new float[3];
 	static float a, b;
@@ -14,7 +14,7 @@ public class polRoot {
 		String[] delim;
 		String fileName;
 		String solutionName;
-		
+		System.out.println(System.getProperty("user.dir"));
 		if(!(args[0].equalsIgnoreCase("-newt") || args[0].equalsIgnoreCase("-sec") || args[0].equalsIgnoreCase("-hybrid"))) {
 			System.out.println("Bisection Method");
 			mode = "bisection";
@@ -115,16 +115,16 @@ public class polRoot {
 			
 			switch(mode) {
 			case "bisection":
-				Bisection(poly, a, b, defaultIter, machineEPS);
+				Bisection(poly, a, b, defaultIter, 0);
 				break;
 			case "newton":
-				Newton(poly, DeriveFunction(poly), a, defaultIter, machineEPS, 0);
+				Newton(poly, DeriveFunction(poly), a, defaultIter, 0, 0);
 				break;
 			case "secant":
-				Secant(poly, a, b, defaultIter, machineEPS);
+				Secant(poly, a, b, defaultIter, 0);
 				break;
 			case "hybrid":
-				Hybrid(poly, a, b, defaultIter, machineEPS, 0);
+				Hybrid(poly, a, b, defaultIter, 0, 0);
 				break;
 				
 			}
@@ -198,7 +198,7 @@ public class polRoot {
 			float fc = Function(f, c);
 		
 			
-			if( Math.abs(error) < eps || fc == 0) {
+			if( Math.abs(error) == eps || fc == 0) {
 				System.out.println("Algorithm has converged after " + iterCounter + " iterations!");
 				
 				solutionArray[0] = c;
@@ -241,7 +241,7 @@ public class polRoot {
 			x = x - d;
 			fx = Function(f, x);
 			
-			if(Math.abs(d) < eps) {
+			if(Math.abs(d) == eps) {
 				System.out.println("Algorithm has converged after " + iterCounter + " iterations!");
 				solutionArray[0] = x;
 				solutionArray[1] = iterCounter;
@@ -290,7 +290,7 @@ public class polRoot {
 			fb = fa;
 			d = d * fa;
 			
-			if(Math.abs(d) < eps) {
+			if(Math.abs(d) == eps) {
 				System.out.println("Algorithm has converged after " + iterCounter + " iterations!");
 				solutionArray[0] = a;
 				solutionArray[1] = iterCounter;
@@ -329,7 +329,7 @@ public class polRoot {
 			c = a + error;
 			fc = Function(f, c);
 			
-			if( Math.abs(error) < eps || fc == 0) {
+			if( Math.abs(error) == eps || fc == 0) {
 			
 				System.out.println("Algorithm has converged after " + iterCounter + " iterations!!");
 				solutionArray[0] = c;
@@ -337,7 +337,7 @@ public class polRoot {
 				solutionArray[2] = 1;
 				return c;
 			} //end if
-			else if(Math.abs(error) < 5) {
+			else if(Math.abs(error) >= 0.01) {
 				break;
 			} //end if
 			
@@ -351,8 +351,7 @@ public class polRoot {
 			} //end if-else
 			
 		}
-		
-		
+
 		
 		//Newton's Part
 		for(int j = 0; j < maxIter; j++) {
@@ -363,7 +362,7 @@ public class polRoot {
 			
 			float fd = Function(DeriveFunction(f), c);
 			if ( Math.abs(fd) < delta) {
-				//Continue with bisection method instead by brekaing out Newton's for loop
+				//Continue with bisection method instead by breaking out Newton's for loop
 				break; 
 			} //end if
 			
@@ -372,7 +371,7 @@ public class polRoot {
 			c = c - d;
 			fc = Function(f, c);
 			
-			if(Math.abs(d) < eps) {
+			if(Math.abs(d) == eps) {
 				System.out.println("Algorithm has converged after " + iterCounter + " iterations!!!");
 				solutionArray[0] = c;
 				solutionArray[1] = iterCounter;
